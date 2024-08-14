@@ -21,8 +21,8 @@ clickSfx.set_volume(0.05)
 puntatore = pygame.image.load("assets/cursor/kenney_cursor-pack/PNG/Outline/Default/pointer_c_shaded.png")
 
 #immagini
-X = pygame.image.load("C:/Users/ludom/Desktop/dev/python/tris/assets/cursor/kenney_cursor-pack/PNG/Outline/Double/cross_large.png")
-O = pygame.image.load("C:/Users/ludom/Desktop/dev/python/tris/assets/cursor/kenney_cursor-pack/PNG/Outline/Double/progress_empty.png")
+X = pygame.image.load("assets/cursor/kenney_cursor-pack/PNG/Outline/Double/cross_large.png")
+O = pygame.image.load("assets/cursor/kenney_cursor-pack/PNG/Outline/Double/progress_empty.png")
 
 pygame.mouse.set_visible(False)
 #inizializzazione finestra
