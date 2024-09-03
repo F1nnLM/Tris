@@ -3,11 +3,38 @@ import pygame
 
 pygame.init()
 
+#stampa griglia
+def disegnaGriglia():
+    schermo.fill(bg)
+    for x in range(1,3):
+        #linee orrizonatali
+        pygame.draw.line(schermo, coloreGriglia, (0, x * 100), (larghezzaSchermo, x * 100), SpessoreGriglia)
+        #linee verticali
+        pygame.draw.line(schermo, coloreGriglia, (x * 100,0), (x * 100, altezzaSchermo), SpessoreGriglia)
+        
+def disegnaCaselle(board, coloreX, coloreO, spessore):
+    x_pos = 0
+    for riga in board:
+        y_pos = 0
+        for cella in riga:
+            if cella == 1:
+                pygame.draw.line(schermo, coloreX, (x_pos * 100 + 15, y_pos * 100 + 15), (x_pos * 100 + 85, y_pos * 100 + 85), spessore)
+                pygame.draw.line(schermo, coloreX, (x_pos * 100 + 15, y_pos * 100 + 85), (x_pos * 100 + 85, y_pos * 100 + 15), spessore)
+
+            elif cella == -1:
+                pygame.draw.circle(schermo, coloreO, (x_pos * 100 + 50, y_pos * 100 + 50), 38, spessore)
+            y_pos += 1
+        x_pos += 1
+
+
+
+#main
+
 player = 1
 larghezzaSchermo = 300
 altezzaSchermo = 300
 
-SpessoreGriglia = 6
+SpessoreGriglia = 8
 
 cliccato = False
 pos = []
@@ -15,9 +42,15 @@ gameBoard = [[0,0,0],
              [0,0,0],
              [0,0,0]]
 
+#colori
+bianco = (246, 255, 222)
+nero = (50, 50, 50)
+bg = (28, 170, 200)
+coloreGriglia = (23, 145, 135)
+
 #cursore
 clickSfx = pygame.mixer.Sound("assets/audio/kenney_interface-sounds/Audio/click_001.ogg")
-clickSfx.set_volume(0.05)
+clickSfx.set_volume(0.3)
 puntatore = pygame.image.load("assets/cursor/kenney_cursor-pack/PNG/Outline/Default/pointer_c_shaded.png")
 
 #immagini
@@ -29,42 +62,33 @@ pygame.mouse.set_visible(False)
 schermo = pygame.display.set_mode(size=(larghezzaSchermo, altezzaSchermo))
 pygame.display.set_caption("Tris")
 
-#stampa griglia
-def disegnaGriglia():
-    bg = (255, 255, 200)
-    coloreGriglia = (250, 200, 152)
-    schermo.fill(bg)
-    for x in range(1,3):
-        #linee orrizonatali
-        pygame.draw.line(schermo, coloreGriglia, (0, x * 100), (larghezzaSchermo, x * 100), SpessoreGriglia)
-        #linee verticali
-        pygame.draw.line(schermo, coloreGriglia, (x * 100,0), (x * 100, altezzaSchermo), SpessoreGriglia)
-        
-def disegnaCaselle(board, coloreX, coloreO):
-    pass
+            
+
 
 #loop di gioco
 run = True
 while run:
     #stampa la griglia
     disegnaGriglia()
-    puntatoreXy = pygame.mouse.get_pos()
-    schermo.blit(puntatore,puntatoreXy)
+    disegnaCaselle(gameBoard, nero, bianco, SpessoreGriglia)
+
+    pos = pygame.mouse.get_pos()
+    schermo.blit(puntatore, pos)
 
     for evento in pygame.event.get():
         #chiude il gioco se l'utente chiude la finestra
         if evento.type == pygame.QUIT:
             run = False
         #chiude il gioco se l'utente scrive esc
-        if evento.type == pygame.KEYDOWN:
+        elif evento.type == pygame.KEYDOWN:
             if evento.key == pygame.K_ESCAPE:
                 run = False
 
-        if evento.type == pygame.MOUSEBUTTONDOWN and cliccato == False:
+        elif evento.type == pygame.MOUSEBUTTONDOWN and cliccato == False:
             if evento.button == 1:
                clickSfx.play()
                cliccato = True
-        if evento.type == pygame.MOUSEBUTTONUP == cliccato == True:
+        elif evento.type == pygame.MOUSEBUTTONUP and cliccato == True:
             if evento.button == 1:
                cliccato = False
                pos = pygame.mouse.get_pos()
@@ -73,9 +97,10 @@ while run:
                if gameBoard[cellaX // 100][cellaY // 100] == 0:
                    gameBoard[cellaX // 100][cellaY // 100] = player
                    player *= -1 #salva un pò di tempo invece di essere player 1 & 2 sono player 1 & -1
-                   
-                   
-
+            print(gameBoard)
+    
+        
+        
                
     pygame.display.update()
 
