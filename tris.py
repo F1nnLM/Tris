@@ -4,25 +4,25 @@ import pygame, time
 #TODO migliora leggibilità del codice, aggiungi eventuali commenti e metti argomenti a funzioni
 
 #stampa griglia
-def disegnaGriglia():
-    schermo.fill(bg)
+def disegnaGriglia(piano, colore, larghezzaPiano, altezzaPiano, spessore, coloreBg):
+    schermo.fill(coloreBg)
     for x in range(1,3):
         #linee orrizonatali
-        pygame.draw.line(schermo, coloreGriglia, (0, x * 100), (larghezzaSchermo, x * 100), SpessoreGriglia)
+        pygame.draw.line(piano, colore, (0, x * 100), (larghezzaPiano, x * 100), spessore)
         #linee verticali
-        pygame.draw.line(schermo, coloreGriglia, (x * 100,0), (x * 100, altezzaSchermo), SpessoreGriglia)
+        pygame.draw.line(piano, colore, (x * 100,0), (x * 100, altezzaPiano), spessore)
         
-def disegnaCaselle(board, coloreX, coloreO, spessore):
+def disegnaCaselle(board, coloreX, coloreO, spessore, piano):
     x_pos = 0
     for colonna in board:
         y_pos = 0
         for cella in colonna:
             if cella == 1:
-                pygame.draw.line(schermo, coloreX, (x_pos * 100 + 15, y_pos * 100 + 15), (x_pos * 100 + 85, y_pos * 100 + 85), spessore)
-                pygame.draw.line(schermo, coloreX, (x_pos * 100 + 15, y_pos * 100 + 85), (x_pos * 100 + 85, y_pos * 100 + 15), spessore)
+                pygame.draw.line(piano, coloreX, (x_pos * 100 + 15, y_pos * 100 + 15), (x_pos * 100 + 85, y_pos * 100 + 85), spessore)
+                pygame.draw.line(piano, coloreX, (x_pos * 100 + 15, y_pos * 100 + 85), (x_pos * 100 + 85, y_pos * 100 + 15), spessore)
 
             elif cella == -1:
-                pygame.draw.circle(schermo, coloreO, (x_pos * 100 + 50, y_pos * 100 + 50), 38, spessore)
+                pygame.draw.circle(piano, coloreO, (x_pos * 100 + 50, y_pos * 100 + 50), 38, spessore)
             y_pos += 1
         x_pos += 1
 
@@ -77,7 +77,7 @@ gameBoard = [[0,0,0],
 #colori
 bianco = (246, 255, 222)
 nero = (50, 50, 50)
-bg = (28, 170, 200)
+coloreBackground = (28, 170, 200)
 coloreGriglia = (23, 145, 135)
 
 vincitore = 0
@@ -88,6 +88,10 @@ gameOver = False
 clickSfx = pygame.mixer.Sound("assets/audio/kenney_interface-sounds/Audio/click_001.ogg")
 clickSfx.set_volume(0.3)
 puntatore = pygame.image.load("assets/cursor/kenney_cursor-pack/PNG/Outline/Default/pointer_c_shaded.png")
+
+#immagine finestra
+icona = pygame.image.load("assets/icona/icon.png")
+pygame.display.set_icon(icona)
 
 #immagini
 X = pygame.image.load("assets/cursor/kenney_cursor-pack/PNG/Outline/Double/cross_large.png")
@@ -103,8 +107,8 @@ pygame.display.set_caption("Tris")
 run = True
 while run:
     #stampa la griglia
-    disegnaGriglia()
-    disegnaCaselle(gameBoard, nero, bianco, SpessoreGriglia)
+    disegnaGriglia(schermo, coloreGriglia, larghezzaSchermo, altezzaSchermo, SpessoreGriglia, coloreBackground) 
+    disegnaCaselle(gameBoard, nero, bianco, SpessoreGriglia, schermo)
 
     pos = pygame.mouse.get_pos()
     schermo.blit(puntatore, pos)
