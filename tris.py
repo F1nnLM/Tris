@@ -98,19 +98,21 @@ blu = (92, 106, 128)
 bianco = (255, 255, 255)
 verde = (0, 143, 57)
 coloreBackground = (28, 170, 200)
-coloreGriglia = (21, 130, 153)#(23, 145, 135)
+coloreGriglia = (21, 130, 153)
 
 #font
 font = pygame.font.SysFont(None, 25)
 
-
 #rettngolo
 rettGiocaAncora =  pygame.Rect(larghezzaSchermo // 2 - 38, altezzaSchermo // 2 + 2, 75, 75)
 
-#cursore
+#audio
+volume = 0.3
 clickSfx = pygame.mixer.Sound("assets/audio/kenney_interface-sounds/Audio/click_001.ogg")
-clickSfx.set_volume(0.3)
-puntatore = pygame.image.load("assets/cursor/kenney_cursor-pack/PNG/Outline/Default/pointer_c_shaded.png")
+switchSfx = pygame.mixer.Sound("assets/audio/kenney_interface-sounds/Audio/switch_002.ogg")
+
+clickSfx.set_volume(volume)
+switchSfx.set_volume(volume)
 
 #immagine finestra
 icona = pygame.image.load("assets/icona/icon.png")
@@ -118,6 +120,7 @@ icona = pygame.image.load("assets/icona/icon.png")
 #immagini
 icona = pygame.image.load("assets/icona/icon.png")
 immGiocaAncora = pygame.image.load("assets/cursor/kenney_cursor-pack/PNG/Outline/Double/rotate_cw.png")
+puntatore = pygame.image.load("assets/cursor/kenney_cursor-pack/PNG/Outline/Default/pointer_c_shaded.png")
 
 
 
@@ -147,7 +150,6 @@ while run:
         
         if evento.type == pygame.MOUSEBUTTONDOWN and cliccato == False:
             cliccato = True
-            clickSfx.play()
         elif evento.type == pygame.MOUSEBUTTONUP and cliccato == True:
             cliccato = False
             pos = pygame.mouse.get_pos()
@@ -157,6 +159,8 @@ while run:
                             [0,0,0]]
                 vincitore = 0
                 gameOver = False
+                switchSfx.play()
+                
 
 
     #mouse
