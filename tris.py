@@ -27,9 +27,17 @@ def disegnaCaselle(board, coloreX, coloreO, spessore, piano):
 def controllaVincitore(board):
     vin = 0 #vincitore
     gmvr = False #Game Over
-
+    
     y_pos = 0
-    for colonna in board: 
+    somma = 0 
+    for colonna in board:
+        for cella in colonna:
+            #controlla parità
+            if cella != 0:
+                somma += 1
+                if somma == 9:
+                    gmvr = True
+
         #controlla colonne
         if sum(colonna) == 3:
             vin = 1
@@ -57,16 +65,14 @@ def controllaVincitore(board):
     return vin, gmvr
 
 
-def disegnaVincitore(vin, fontText, immgColore, rettangoloColore, piano, larghezza, altezza, rettangolo):
-    testoVittoria = f"il giocatore {vin} ha vinto!"
-    immVittoria = fontText.render(testoVittoria, True, immgColore)
-    pygame.draw.rect(piano, rettangoloColore, (larghezza // 2 - 100, altezza // 2 - 60, 200, 50))
-    piano.blit(immVittoria, (larghezza // 2 - 100, altezza // 2 - 50))
+def disegnaVincitore(giocaAncora, testo, fontText, immgColore, rettangoloColore, piano, larghezza, altezza, rettangolo):
+    immVittoria = fontText.render(testo, True, immgColore)
+    pygame.draw.rect(piano, rettangoloColore, (larghezza // 2 - 100, altezza // 2 - 60, 200, 50), border_radius = 10)
+    piano.blit(immVittoria, (larghezza // 2 - 90, altezza // 2 - 45))
+    
+    pygame.draw.rect(piano, rettangoloColore, rettangolo, border_radius = 10)
+    piano.blit(giocaAncora, (larghezza // 2 - 35, altezza // 2 + 10))
 
-    testoGiocaAncora = "Rivincita?"
-    immGiocaAncora = fontText.render(testoGiocaAncora, True, immgColore)
-    pygame.draw.rect(piano, rettangolo,  rettangolo)
-    piano.blit(immGiocaAncora, (larghezza // 2 - 100, altezza // 2 + 10))
 
 #main
 pygame.init()
@@ -86,20 +92,21 @@ vincitore = 0
 gameOver = False
 
 #colori
-bianco = (246, 255, 222)
+beige = (246, 255, 222)
 nero = (50, 50, 50)
-blu = (0, 0, 255)
+blu = (92, 106, 128)
+bianco = (255, 255, 255)
 verde = (0, 143, 57)
 coloreBackground = (28, 170, 200)
-coloreGriglia = (23, 145, 135)
+coloreGriglia = (21, 130, 153)#(23, 145, 135)
 
 #font
-font = pygame.font.SysFont(None, 27)
-
+font = pygame.font.SysFont(None, 25)
 
 
 #rettngolo
-rettGiocaAncora =  pygame.Rect(larghezzaSchermo // 2 - 80, altezzaSchermo // 2, 160, 50)    
+rettGiocaAncora =  pygame.Rect(larghezzaSchermo // 2 - 38, altezzaSchermo // 2 + 2, 75, 75)
+
 #cursore
 clickSfx = pygame.mixer.Sound("assets/audio/kenney_interface-sounds/Audio/click_001.ogg")
 clickSfx.set_volume(0.3)
@@ -109,9 +116,8 @@ puntatore = pygame.image.load("assets/cursor/kenney_cursor-pack/PNG/Outline/Defa
 icona = pygame.image.load("assets/icona/icon.png")
 
 #immagini
-X = pygame.image.load("assets/cursor/kenney_cursor-pack/PNG/Outline/Double/cross_large.png")
-O = pygame.image.load("assets/cursor/kenney_cursor-pack/PNG/Outline/Double/progress_empty.png")
 icona = pygame.image.load("assets/icona/icon.png")
+immGiocaAncora = pygame.image.load("assets/cursor/kenney_cursor-pack/PNG/Outline/Double/rotate_cw.png")
 
 
 
@@ -129,12 +135,19 @@ while run:
   
     #stampa la griglia
     disegnaGriglia(schermo, coloreGriglia, larghezzaSchermo, altezzaSchermo, SpessoreGriglia, coloreBackground) 
-    disegnaCaselle(gameBoard, nero, bianco, SpessoreGriglia, schermo)
+    disegnaCaselle(gameBoard, nero, beige, SpessoreGriglia, schermo)
 
     if gameOver == True:
-        disegnaVincitore(vincitore, font, blu, verde, schermo, larghezzaSchermo, altezzaSchermo, rettGiocaAncora) 
+        if vincitore == 0:
+            testoGameOver = "Pari, nessuno ha vinto"
+        else:
+            testoGameOver = f"il giocatore {vincitore} ha vinto!"
+
+        disegnaVincitore(immGiocaAncora, testoGameOver, font, bianco, blu, schermo, larghezzaSchermo, altezzaSchermo, rettGiocaAncora) 
+        
         if evento.type == pygame.MOUSEBUTTONDOWN and cliccato == False:
             cliccato = True
+            clickSfx.play()
         elif evento.type == pygame.MOUSEBUTTONUP and cliccato == True:
             cliccato = False
             pos = pygame.mouse.get_pos()
@@ -144,7 +157,6 @@ while run:
                             [0,0,0]]
                 vincitore = 0
                 gameOver = False
-
 
 
     #mouse
@@ -161,10 +173,6 @@ while run:
 
         elif evento.type == pygame.MOUSEBUTTONDOWN and gameOver == False:
             clickSfx.play()
-               #cliccato = True
-        #elif evento.type == pygame.MOUSEBUTTONUP and cliccato == True:
-            #if evento.button == 1:
-               #cliccato = False
             pos = pygame.mouse.get_pos()
             cellaX = pos[0]
             cellaY = pos[1]
