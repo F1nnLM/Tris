@@ -141,9 +141,9 @@ def turnoComputer(board):
             piazzato = True
 
     #se non è stato piazzato nulla, piazza casualmente
-    #controlla che la tabella non sia piena
-    pieno = False
+
     if not piazzato:
+        #controlla che la tabella non sia piena
         pieno = True
         for colonna in board:
             for cella in colonna:
@@ -195,9 +195,15 @@ rettVsComputer = pygame.Rect(larghezzaSchermo // 2 - 100, altezzaSchermo // 2 + 
 volume = 1
 clickSfx = pygame.mixer.Sound("assets/audio/kenney_interface-sounds/Audio/click_001.ogg")
 switchSfx = pygame.mixer.Sound("assets/audio/kenney_interface-sounds/Audio/switch_002.ogg")
+winSfx = pygame.mixer.Sound("assets/audio/jingle_win_synth_00.wav")
+loseSfx = pygame.mixer.Sound("assets/audio/kenney_digital-audio/Audio/spaceTrash2.ogg")
 
 clickSfx.set_volume(volume)
 switchSfx.set_volume(volume)
+winSfx.set_volume(volume)
+loseSfx.set_volume(volume)
+
+riprodotto = False
 
 #immagine finestra
 icona = pygame.image.load("assets/icona/icon.png")
@@ -210,7 +216,7 @@ puntatore = pygame.image.load("assets/cursor/kenney_cursor-pack/PNG/Outline/Defa
 
 #inizializzazione finestra
 schermo = pygame.display.set_mode(size=(larghezzaSchermo, altezzaSchermo))
-pygame.display.set_caption("Tris")
+pygame.display.set_caption("Tris | menù")
 pygame.display.set_icon(icona)
 pygame.mouse.set_visible(False)
 
@@ -233,10 +239,11 @@ while run:
                 pos = pygame.mouse.get_pos()
                 if rettVsGiocatore.collidepoint(pos):
                     modalita = 1
-                    switchSfx.play()
+                    pygame.display.set_caption("Tris | standard")
                 elif rettVsComputer.collidepoint(pos):
-                    modalita = 2
-                    switchSfx.play()
+                    pygame.display.set_caption("Tris | VS Computer")
+                    modalita = 2 
+                switchSfx.play()
                                    
     else:
         #stampa la griglia
@@ -267,16 +274,27 @@ while run:
 
         #gameover
         if gameOver == True:
+
             if vincitore == 0:
                 testoGameOver = "Pari, nessuno ha vinto"
+                if not riprodotto:
+                    loseSfx.play()
+                    riprodotto = True
             else:
-                testoGameOver = f"il giocatore {vincitore} ha vinto!"
+                testoGameOver = f"Il giocatore {vincitore} ha vinto!"
+                if not riprodotto and vincitore == 2 and modalita == 2:
+                    loseSfx.play()
+                    riprodotto = True
+                elif not riprodotto:
+                    winSfx.play()
+                    riprodotto = True
 
             disegnaVincitore(immGiocaAncora, testoGameOver, font, bianco, blu, schermo, larghezzaSchermo, altezzaSchermo, rettGiocaAncora) 
         
             if evento.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 if rettGiocaAncora.collidepoint(pos):
+                    pygame.display.set_caption("Tris | menù")
                     gameBoard = [[0,0,0],
                                  [0,0,0],
                                  [0,0,0]]
@@ -284,6 +302,7 @@ while run:
                     vincitore = 0
                     gameOver = False
                     modalita = 0
+                    riprodotto = False
                     switchSfx.play()
 
     #mouse

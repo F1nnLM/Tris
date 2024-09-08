@@ -1,2 +1,8 @@
 # Tris/Tic-tac-toe
-School project consisting on creating Tic-tac-toe using pygame, **WIP, its not finished**.
+**Tasti**
+ESC - Esci dal gioco
+
+**Modalità**
+
+Standard - giochi contro te stesso/ un altro giocatore
+VS Computer - giochi contro un algoritmo, il computer piazza le sue caselle quando vede che stai per completare una riga/ colonna, altrimenti occupa una casella a caso
