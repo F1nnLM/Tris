@@ -58,8 +58,8 @@ def controllaVincitore(board):
     if board[0][0] + board[1][1] + board[2][2] == 3 or board[2][0] + board[1][1] + board[0][2] == 3:
         vin = 1
         gmvr = True
-    elif board[0][0] + board[1][1] + board[2][2] == 3 or board[2][0] + board[1][1] + board[0][2] == -3:
-        vin = 1
+    elif board[0][0] + board[1][1] + board[2][2] == -3 or board[2][0] + board[1][1] + board[0][2] == -3:
+        vin = 2
         gmvr = True
 
     return vin, gmvr
@@ -83,7 +83,7 @@ altezzaSchermo = 300
 
 SpessoreGriglia = 8
 
-cliccato = False
+
 pos = []
 gameBoard = [[0,0,0],
              [0,0,0],
@@ -107,7 +107,7 @@ font = pygame.font.SysFont(None, 25)
 rettGiocaAncora =  pygame.Rect(larghezzaSchermo // 2 - 38, altezzaSchermo // 2 + 2, 75, 75)
 
 #audio
-volume = 0.3
+volume = 1
 clickSfx = pygame.mixer.Sound("assets/audio/kenney_interface-sounds/Audio/click_001.ogg")
 switchSfx = pygame.mixer.Sound("assets/audio/kenney_interface-sounds/Audio/switch_002.ogg")
 
@@ -135,11 +135,12 @@ pygame.mouse.set_visible(False)
 run = True
 while run:
 
-  
     #stampa la griglia
     disegnaGriglia(schermo, coloreGriglia, larghezzaSchermo, altezzaSchermo, SpessoreGriglia, coloreBackground) 
     disegnaCaselle(gameBoard, nero, beige, SpessoreGriglia, schermo)
 
+  
+    #gameover
     if gameOver == True:
         if vincitore == 0:
             testoGameOver = "Pari, nessuno ha vinto"
@@ -148,24 +149,18 @@ while run:
 
         disegnaVincitore(immGiocaAncora, testoGameOver, font, bianco, blu, schermo, larghezzaSchermo, altezzaSchermo, rettGiocaAncora) 
         
-        if evento.type == pygame.MOUSEBUTTONDOWN and cliccato == False:
-            cliccato = True
-        elif evento.type == pygame.MOUSEBUTTONUP and cliccato == True:
-            cliccato = False
+        if evento.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
             if rettGiocaAncora.collidepoint(pos):
                 gameBoard = [[0,0,0],
                             [0,0,0],
                             [0,0,0]]
+                player = 1
                 vincitore = 0
                 gameOver = False
                 switchSfx.play()
                 
-
-
-    #mouse
-    pos = pygame.mouse.get_pos()
-    schermo.blit(puntatore, pos)
+    #logica  principale del gioco
     for evento in pygame.event.get():
         #chiude il gioco se l'utente chiude la finestra
         if evento.type == pygame.QUIT:
@@ -174,7 +169,6 @@ while run:
         elif evento.type == pygame.KEYDOWN:
             if evento.key == pygame.K_ESCAPE:
                 run = False
-
         elif evento.type == pygame.MOUSEBUTTONDOWN and gameOver == False:
             clickSfx.play()
             pos = pygame.mouse.get_pos()
@@ -184,6 +178,10 @@ while run:
                 gameBoard[cellaX // 100][cellaY // 100] = player
                 player *= -1 #salva un pò di tempo invece di essere player 1 & 2 sono player 1 & -1
                 vincitore, gameOver = controllaVincitore(gameBoard)
+
+    #mouse
+    pos = pygame.mouse.get_pos()
+    schermo.blit(puntatore, pos)
         
     pygame.display.update()
 pygame.quit()
