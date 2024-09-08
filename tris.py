@@ -1,5 +1,17 @@
 #tris
-import pygame, time
+import pygame, random
+
+
+def disegnaMenu(piano, coloreBg, fontText, immgColore, rettangoloColore, larghezza, altezza, rettangolo1, rettangolo2):
+    schermo.fill(coloreBg)
+    immVsPLayer = fontText.render("Standard", True, immgColore)
+    pygame.draw.rect(piano, rettangoloColore, rettangolo1, border_radius = 10)
+    piano.blit(immVsPLayer, (larghezza // 2 - 40, altezza // 2 - 43))
+    
+    immVsComputer = fontText.render("VS Computer", True, immgColore)
+    pygame.draw.rect(piano, rettangoloColore, rettangolo2, border_radius = 10)
+    piano.blit(immVsComputer, (larghezza // 2 - 52, altezza // 2 + 17))
+
 
 #stampa griglia
 def disegnaGriglia(piano, colore, larghezzaPiano, altezzaPiano, spessore, coloreBg):
@@ -74,22 +86,90 @@ def disegnaVincitore(giocaAncora, testo, fontText, immgColore, rettangoloColore,
     piano.blit(giocaAncora, (larghezza // 2 - 35, altezza // 2 + 10))
 
 
+def turnoComputer(board):
+    #se l'algoritmo vede che il giocatore sta per vincere piazza la sua casella in modo da interrompere la riga altrimenti piazza casualmente
+
+    indiceCellaRighe = 0
+    IndiceColonna = 0
+    piazzato = False
+    for colonna in board:
+        riga = [board[0][indiceCellaRighe], board[1][indiceCellaRighe], board[2][indiceCellaRighe]]
+        #Controlla colonne
+        if sum(colonna) == 2 and not piazzato:
+            indiceCellaColonne = 0
+            for cella in colonna:
+                if cella == 0:
+                    board[IndiceColonna][indiceCellaColonne] = -1
+                    piazzato = True
+                indiceCellaColonne += 1
+    
+        #Controlla righe
+        elif sum(riga) == 2 and not piazzato:
+            indiceRiga = 0
+            for cella in riga:
+                if cella == 0:
+                    board[indiceRiga][indiceCellaRighe] = -1
+                    piazzato = True             
+                indiceRiga += 1
+    
+        indiceCellaRighe += 1
+        IndiceColonna += 1
+
+    #controlla croci
+    #croce 1
+    if board[0][0] + board[1][1] + board[2][2] == 2 and not piazzato:
+        if board[0][0] == 0:
+            board[0][0] = -1
+            piazzato = True
+        elif board[1][1] == 0:
+            board[1][1] = -1
+            piazzato = True
+        elif board[2][2] == 0:
+            board[2][2] = -1
+            piazzato = True
+    
+    #croce 2
+    elif board[2][0] + board[1][1] + board[0][2] == 2 and not piazzato:
+        if board[2][0] == 0:
+            board[2][0] = -1
+            piazzato = True
+        elif board[1][1] == 0:
+            board[1][1] = -1
+            piazzato = True
+        elif board[0][2] == 0:
+            board[0][2] = -1
+            piazzato = True
+
+    #se non è stato piazzato nulla, piazza casualmente
+    #controlla che la tabella non sia piena
+    pieno = False
+    if not piazzato:
+        pieno = True
+        for colonna in board:
+            for cella in colonna:
+                if cella == 0:
+                    pieno = False  
+
+        while not piazzato and not pieno:
+            colonna = random.randint(0, 2)
+            cella = random.randint(0, 2)
+            if board[colonna][cella] == 0:
+                board[colonna][cella] = -1
+                piazzato = True
+
+
 #main
 pygame.init()
 
+#Gioco
 player = 1
-larghezzaSchermo = 300
-altezzaSchermo = 300
-
-SpessoreGriglia = 8
-
-
 pos = []
 gameBoard = [[0,0,0],
              [0,0,0],
              [0,0,0]]
 vincitore = 0
 gameOver = False
+modalita = 0
 
 #colori
 beige = (246, 255, 222)
@@ -100,11 +180,16 @@ verde = (0, 143, 57)
 coloreBackground = (28, 170, 200)
 coloreGriglia = (21, 130, 153)
 
-#font
+#aspetto
 font = pygame.font.SysFont(None, 25)
+SpessoreGriglia = 8
+larghezzaSchermo = 300
+altezzaSchermo = 300
 
-#rettngolo
+#rettangoli / pulsanti
 rettGiocaAncora =  pygame.Rect(larghezzaSchermo // 2 - 38, altezzaSchermo // 2 + 2, 75, 75)
+rettVsGiocatore = pygame.Rect(larghezzaSchermo // 2 - 100, altezzaSchermo // 2 - 60, 200, 50)
+rettVsComputer = pygame.Rect(larghezzaSchermo // 2 - 100, altezzaSchermo // 2 + 2, 200, 50)
 
 #audio
 volume = 1
@@ -123,7 +208,6 @@ immGiocaAncora = pygame.image.load("assets/cursor/kenney_cursor-pack/PNG/Outline
 puntatore = pygame.image.load("assets/cursor/kenney_cursor-pack/PNG/Outline/Default/pointer_c_shaded.png")
 
 
-
 #inizializzazione finestra
 schermo = pygame.display.set_mode(size=(larghezzaSchermo, altezzaSchermo))
 pygame.display.set_caption("Tris")
@@ -134,50 +218,73 @@ pygame.mouse.set_visible(False)
 #loop di gioco
 run = True
 while run:
-
-    #stampa la griglia
-    disegnaGriglia(schermo, coloreGriglia, larghezzaSchermo, altezzaSchermo, SpessoreGriglia, coloreBackground) 
-    disegnaCaselle(gameBoard, nero, beige, SpessoreGriglia, schermo)
-
-  
-    #gameover
-    if gameOver == True:
-        if vincitore == 0:
-            testoGameOver = "Pari, nessuno ha vinto"
-        else:
-            testoGameOver = f"il giocatore {vincitore} ha vinto!"
-
-        disegnaVincitore(immGiocaAncora, testoGameOver, font, bianco, blu, schermo, larghezzaSchermo, altezzaSchermo, rettGiocaAncora) 
-        
-        if evento.type == pygame.MOUSEBUTTONDOWN:
-            pos = pygame.mouse.get_pos()
-            if rettGiocaAncora.collidepoint(pos):
-                gameBoard = [[0,0,0],
-                            [0,0,0],
-                            [0,0,0]]
-                player = 1
-                vincitore = 0
-                gameOver = False
-                switchSfx.play()
-                
-    #logica  principale del gioco
-    for evento in pygame.event.get():
-        #chiude il gioco se l'utente chiude la finestra
-        if evento.type == pygame.QUIT:
-            run = False
-        #chiude il gioco se l'utente preme esc
-        elif evento.type == pygame.KEYDOWN:
-            if evento.key == pygame.K_ESCAPE:
+    if modalita == 0:
+        #menu
+        disegnaMenu(schermo, coloreBackground, font, bianco, blu, larghezzaSchermo, altezzaSchermo, rettVsGiocatore, rettVsComputer)
+        for evento in pygame.event.get():
+            #chiude il gioco se l'utente chiude la finestra
+            if evento.type == pygame.QUIT:
                 run = False
-        elif evento.type == pygame.MOUSEBUTTONDOWN and gameOver == False:
-            clickSfx.play()
-            pos = pygame.mouse.get_pos()
-            cellaX = pos[0]
-            cellaY = pos[1]
-            if gameBoard[cellaX // 100][cellaY // 100] == 0:
-                gameBoard[cellaX // 100][cellaY // 100] = player
-                player *= -1 #salva un pò di tempo invece di essere player 1 & 2 sono player 1 & -1
+            #chiude il gioco se l'utente preme esc
+            elif evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_ESCAPE:
+                    run = False
+            elif evento.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if rettVsGiocatore.collidepoint(pos):
+                    modalita = 1
+                    switchSfx.play()
+                elif rettVsComputer.collidepoint(pos):
+                    modalita = 2
+                    switchSfx.play()
+                                   
+    else:
+        #stampa la griglia
+        disegnaGriglia(schermo, coloreGriglia, larghezzaSchermo, altezzaSchermo, SpessoreGriglia, coloreBackground) 
+        disegnaCaselle(gameBoard, nero, beige, SpessoreGriglia, schermo)  
+                
+        #logica  principale del gioco
+        for evento in pygame.event.get():
+            #chiude il gioco se l'utente chiude la finestra
+            if evento.type == pygame.QUIT:
+                run = False
+            #chiude il gioco se l'utente preme esc
+            elif evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_ESCAPE:
+                    run = False
+            elif evento.type == pygame.MOUSEBUTTONDOWN and not gameOver:
+                clickSfx.play()
+                pos = pygame.mouse.get_pos()
+                cellaX = pos[0]
+                cellaY = pos[1]
+                if gameBoard[cellaX // 100][cellaY // 100] == 0:
+                    gameBoard[cellaX // 100][cellaY // 100] = player
+                    if modalita == 1:
+                        player *= -1 #salva un pò di tempo invece di essere player 1 & 2 sono player 1 & -1
+                    elif modalita == 2:
+                        turnoComputer(gameBoard)  
                 vincitore, gameOver = controllaVincitore(gameBoard)
+
+        #gameover
+        if gameOver == True:
+            if vincitore == 0:
+                testoGameOver = "Pari, nessuno ha vinto"
+            else:
+                testoGameOver = f"il giocatore {vincitore} ha vinto!"
+
+            disegnaVincitore(immGiocaAncora, testoGameOver, font, bianco, blu, schermo, larghezzaSchermo, altezzaSchermo, rettGiocaAncora) 
+        
+            if evento.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if rettGiocaAncora.collidepoint(pos):
+                    gameBoard = [[0,0,0],
+                                 [0,0,0],
+                                 [0,0,0]]
+                    player = 1
+                    vincitore = 0
+                    gameOver = False
+                    modalita = 0
+                    switchSfx.play()
 
     #mouse
     pos = pygame.mouse.get_pos()
