@@ -87,15 +87,32 @@ def disegnaVincitore(giocaAncora, testo, fontText, immgColore, rettangoloColore,
 
 
 def turnoComputer(board):
-    #se l'algoritmo vede che il giocatore sta per vincere piazza la sua casella in modo da interrompere la riga altrimenti piazza casualmente
-
+    #se l'algoritmo vede che il giocatore sta per vincere piazza la sua casella in modo da interrompere la riga, se vede che invece che il computer sta vincendo allora piazza la casella per completare la riga, altrimenti la piazza a caso
     indiceCellaRighe = 0
     IndiceColonna = 0
     piazzato = False
     for colonna in board:
         riga = [board[0][indiceCellaRighe], board[1][indiceCellaRighe], board[2][indiceCellaRighe]]
+        #controlla colonne computer
+        if sum(colonna) == -2 and not piazzato:
+            indiceCellaColonne = 0
+            for cella in colonna:
+                if cella == 0:
+                    board[IndiceColonna][indiceCellaColonne] = -1
+                    piazzato = True
+                indiceCellaColonne += 1
+    
+        #Controlla righe computer
+        elif sum(riga) == -2 and not piazzato:
+            indiceRiga = 0
+            for cella in riga:
+                if cella == 0:
+                    board[indiceRiga][indiceCellaRighe] = -1
+                    piazzato = True             
+                indiceRiga += 1
+
         #Controlla colonne
-        if sum(colonna) == 2 and not piazzato:
+        elif sum(colonna) == 2 and not piazzato:
             indiceCellaColonne = 0
             for cella in colonna:
                 if cella == 0:
@@ -116,8 +133,8 @@ def turnoComputer(board):
         IndiceColonna += 1
 
     #controlla croci
-    #croce 1
-    if board[0][0] + board[1][1] + board[2][2] == 2 and not piazzato:
+    #croce 1 computer
+    if board[0][0] + board[1][1] + board[2][2] == -2 and not piazzato:
         if board[0][0] == 0:
             board[0][0] = -1
             piazzato = True
@@ -128,7 +145,31 @@ def turnoComputer(board):
             board[2][2] = -1
             piazzato = True
     
-    #croce 2
+    #croce 2 computer 
+    elif board[2][0] + board[1][1] + board[0][2] == -2 and not piazzato:
+        if board[2][0] == 0:
+            board[2][0] = -1
+            piazzato = True
+        elif board[1][1] == 0:
+            board[1][1] = -1
+            piazzato = True
+        elif board[0][2] == 0:
+            board[0][2] = -1
+            piazzato = True
+    
+        #croce 1 
+    elif board[0][0] + board[1][1] + board[2][2] == 2 and not piazzato:
+        if board[0][0] == 0:
+            board[0][0] = -1
+            piazzato = True
+        elif board[1][1] == 0:
+            board[1][1] = -1
+            piazzato = True
+        elif board[2][2] == 0:
+            board[2][2] = -1
+            piazzato = True
+    
+    #croce 2 
     elif board[2][0] + board[1][1] + board[0][2] == 2 and not piazzato:
         if board[2][0] == 0:
             board[2][0] = -1
